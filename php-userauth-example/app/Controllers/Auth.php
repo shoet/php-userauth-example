@@ -8,11 +8,65 @@ use \Config\Services;
 
 class Auth extends BaseController
 {
-    public function index(): string
+    public function login(): string
     {
         $data = [
-            'title' => 'Login'
+            'title' => 'ログイン'
         ];
+        return view('templates/header', $data).
+            view('auth/login', $data).
+            view('templates/footer');
+    }
+
+    public function signin()
+    {
+        $data = [
+            'title' => 'ログイン'
+        ];
+        $validation = Services::validation();
+        $validation->setRules([
+            'email' => 'required',
+            'password' => 'required',
+        ]);
+        if ($validation->withRequest($this->request)->run()) {
+            $email = $this->request->getPost('email');
+            $password = $this->request->getPost('password');
+            $model = model(UserModel::class);
+            $user = $model->getUserByEmail($email);
+
+            if ($user) {
+                if (password_verify($password, $user['password'])) {
+                    $session = session();
+                    $session->set('user_id', $user['id']);
+                    $session->set('username', $user['name']);
+                    $session->set('email', $user['email']);
+                    $session->set('logged_in', true);
+                    return redirect()->to('/login')->with('success', 'ログインしました。');
+                } else {
+                    log_message('debug', 'signin() validation failed');
+                    session()->setFlashdata('errors', ['メールアドレスかパスワードが間違っています。']);
+                    return view('templates/header', $data).
+                        view('auth/login', $data).
+                        view('templates/footer');
+                }
+            } else {
+                log_message('debug', 'signin() validation failed');
+                session()->setFlashdata('errors', ['メールアドレスかパスワードが間違っています。']);
+                return view('templates/header', $data).
+                    view('auth/login', $data).
+                    view('templates/footer');
+            }
+            return view('templates/header', ['title' => 'Login']).
+                view('auth/login_success').
+                view('templates/footer');
+        } else {
+            log_message('debug', 'signup() validation failed');
+            $errors = $validation->getErrors();
+            session()->setFlashdata('errors', $errors);
+            return view('templates/header', $data).
+                view('auth/login', $data).
+                view('templates/footer');
+        }
         return view('templates/header', $data).
             view('auth/login', $data).
             view('templates/footer');
@@ -37,7 +91,7 @@ class Auth extends BaseController
         $validation = Services::validation();
         $validation->setRules([
             'username' => 'required',
-            'email' => 'required|valid_email',
+            'email' => 'required|valid_email|is_unique[users.email]',
             'password' => 'required|min_length[8]',
         ]);
 
@@ -51,7 +105,7 @@ class Auth extends BaseController
 
             log_message('debug', 'signup() called');
             return view('templates/header', ['title' => 'Login']).
-                view('auth/login', $data).
+                view('auth/register_validate').
                 view('templates/footer');
         } else {
             log_message('debug', 'signup() validation failed');
@@ -63,8 +117,4 @@ class Auth extends BaseController
         }
     }
 
-    public function login(): string
-    {
-
-    }
 }

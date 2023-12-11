@@ -40,11 +40,13 @@ class InitUser extends Migration
             ],
         ]);
         $this->forge->addPrimaryKey('id');
+        $this->forge->addUniqueKey('email');
         $this->forge->createTable('users');
     }
 
     public function down()
     {
         //
+        $this->forge->dropTable('users');
     }
 }
