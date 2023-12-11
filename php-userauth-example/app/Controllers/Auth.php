@@ -35,12 +35,15 @@ class Auth extends BaseController
         $data = [
             'title' => 'ユーザー登録'
         ];
+        $username = $this->request->getPost('username');
+        $email = $this->request->getPost('email');
+        $password = $this->request->getPost('password');
+        $password_hashed = password_hash($password, PASSWORD_DEFAULT);
         $model = model(UserModel::class);
-        $model->registerUser($data);
+        $model->registerUser($username, $email, $password_hashed);
 
         log_message('debug', 'signup() called');
-        // TODO ユーザ登録
-        return view('templates/header', $data).
+        return view('templates/header', ['title' => 'Login']).
             view('auth/login', $data).
             view('templates/footer');
     }

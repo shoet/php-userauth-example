@@ -5,10 +5,10 @@ namespace App\Models;
 use CodeIgniter\BaseModel;
 use CodeIgniter\Model;
 
-class UserModel extends BaseModel
+class UserModel extends Model
 {
 
-    protected $table = "users";
+    protected $table = 'users';
 
     protected $allowedFields = [
         'name',
@@ -17,6 +17,10 @@ class UserModel extends BaseModel
         'created_at',
         'updated_at'
     ];
+
+    protected $useTimestamps = true;
+    protected $createdField = 'created_at';
+    protected $updatedField = 'updated_at';
 
     public function getUsers(): array
     {
@@ -29,9 +33,13 @@ class UserModel extends BaseModel
         return $this->where('email', $email)->first();
     }
 
-    public function registerUser(array $data)
+    public function registerUser(string $username, string $email, string $password)
     {
-        // TODO password hash
+        $data = [
+            'name' => $username, 
+            'email' => $email,
+            'password' => $password
+        ];
         $this->insert($data);
     }
 }
