@@ -24,7 +24,6 @@ class UserModel extends Model
 
     public function getUsers(): array
     {
-        //return $this->select('name','email','created_at', 'updated_at')->findAll();
         return $this->findAll();
     }
 

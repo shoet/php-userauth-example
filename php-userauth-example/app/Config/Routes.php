@@ -11,4 +11,3 @@ $routes->get('/login', [Auth::class, 'login']);
 $routes->post('/signin', [Auth::class, 'signin']);
 $routes->get('/register', [Auth::class, 'register']);
 $routes->post('/signup', [Auth::class, 'signup']);
-/*$routes->post('/login')*/
